@@ -141,7 +141,7 @@ function SLAXML:selects(searched,xml_el,elements)
 	table.insert (elements, xml_el)
       elseif string.sub(searched, 1, 1) == "." and xml_el.attr["class"] == string.sub(searched, 2) then
         table.insert (elements, xml_el)
-      --elseif xml_el.attr["id"] ~= nil and searched == "*" then --knot.attr["src"] ~= nil makes sure its a media(keep it?)
+      --elseif xml_el.attr["id"] ~= nil and searched == "*" then
       else
 		if xml_el["name"]==searched and xml_el["type"]=="element" then
 			table.insert (elements, xml_el)				
@@ -160,7 +160,7 @@ function SLAXML:joindocs(css, doc)
 	
 	for k, v in pairs (css) do
 		local elements = {}
-		SLAXML:selects(k, doc.root, elements)	--procura k em doc
+		SLAXML:selects(k, doc.root, elements)	--look for k in doc
 		for a, b in pairs (elements) do
 			for c,d in pairs(v) do
 				SLAXML:set_attr(b, c, d)
