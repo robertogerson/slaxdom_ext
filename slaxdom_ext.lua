@@ -1,5 +1,6 @@
 -- require slaxml
-local SLAXML = require 'slaxml.slaxdom'
+--local SLAXML = require 'slaxml.slaxdom' --old
+local SLAXML = require ("slaxdom")
 
 -- Get the attribute of an XML element represented by SLAXML.
 -- @param xml_el
@@ -26,8 +27,8 @@ function SLAXML:set_attr(xml_el, name, value)
   local updated = false
   -- if there is the attribute in attr table, update it
   for x, attr in pairs(xml_el.attr) do
-    if attr.name == name then
-      attr.value = value
+    if attr.name == name and attr.value:find(value)==nil then -- CHANGED FROM if attr.name == name then
+      attr.value = attr.value..";"..value -- CHANGE TO attr.value = value
       updated = true
       break
     end
@@ -121,6 +122,55 @@ function SLAXML:get_elements_by_type(xml_el, tagname, recursive)
   return elements
 end
 
+-- Select by selector
+--@searched The string being searched.
+--@xml_el The XML element root where we want to start the search.
+--@elements The table with the found elements. 
+function SLAXML:selects(searched,xml_el,elements)
+    local index
+    if searched:find(",")~=nil then
+      index = searched:find(",")
+      print(index)
+      SLAXML:selects(string.sub(searched, 1, index-1), xml_el, elements)
+      SLAXML:selects(string.sub(searched, index+1),xml_el,elements)
+    elseif xml_el.el ~= nil then
+      for i,n in ipairs(xml_el.el) do
+        SLAXML:selects(searched, xml_el.el[i], elements) 
+      end
+      if string.sub(searched, 1, 1) == "#"and xml_el.attr["id"] == string.sub(searched, 2) then
+	table.insert (elements, xml_el)
+      elseif string.sub(searched, 1, 1) == "." and xml_el.attr["class"] == string.sub(searched, 2) then
+        table.insert (elements, xml_el)
+      --elseif xml_el.attr["id"] ~= nil and searched == "*" then --knot.attr["src"] ~= nil makes sure its a media(keep it?)
+      else
+		if xml_el["name"]==searched and xml_el["type"]=="element" then
+			table.insert (elements, xml_el)				
+		--elseif proc:find(">")~=nil then
+		--elseif proc:find("+")~=nil then
+		--elseif proc:find(" ")~=nil then
+		end
+	end
+    end
+end
+
+--Join css-like lua table and xml document file
+--@css The css-like Lua Table
+--@doc The xml of input
+function SLAXML:joindocs(css, doc)
+	
+	for k, v in pairs (css) do
+		local elements = {}
+		SLAXML:selects(k, doc.root, elements)	--procura k em doc
+		for a, b in pairs (elements) do
+			for c,d in pairs(v) do
+				SLAXML:set_attr(b, c, d)
+			end
+		end
+	end
+	
+end
+
+
 
 -- Serialize an XML document represented as a SLAXML dom table
 -- @param xml_el The SLAXML dom table.
@@ -147,9 +197,9 @@ function SLAXML:serialize (xml_el, ntabs, TAB)
         end
       end
     else
-      -- if xml_el.type == "text" then
-      --  return xml_el.value
-      -- end
+       if xml_el.type == "text" then --this if was commented
+        return xml_el.value --
+       end	--
     end
     
     -- go recursively 
