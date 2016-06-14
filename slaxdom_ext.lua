@@ -133,6 +133,13 @@ function SLAXML:selects(searched,xml_el,elements)
       print(index)
       SLAXML:selects(string.sub(searched, 1, index-1), xml_el, elements)
       SLAXML:selects(string.sub(searched, index+1),xml_el,elements)
+    elseif searched:find(" ")~=nil then
+			local temp = {}
+			index = searched:find(" ")
+			SLAXML:selects(string.sub(searched, 1, index-1),xml_el,temp)--search parent,temp will be filled
+			for u,v in ipairs(temp) do--for each parent search the son element
+				SLAXML:selects(string.sub(searched, index+1) ,v, elements)
+			end
     elseif xml_el.el ~= nil then
       for i,n in ipairs(xml_el.el) do
         SLAXML:selects(searched, xml_el.el[i], elements) 
