@@ -13,7 +13,7 @@ Selectors:
 element:      p  - 	Selects all <p> elements
 
 
-element,element: div,p - Selects all <div> elements and all <p> elements
+element,element: d,p - Selects all <d> elements and all <p> elements
 
 
-element element: div p - Selects all <p> elements inside <div> elements
+element element: d p - Selects all <p> elements inside <d> elements
