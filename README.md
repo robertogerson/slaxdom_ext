@@ -1,19 +1,21 @@
 # slaxdom_ext
 Extensions to SLAXML (https://github.com/Phrogz/SLAXML) API
 
+<textarea>
+Selectors:  
 
-Selectors:
 
 .class: 	.intro -	Selects all elements with class="intro"  
 
 
- #id: #firstname - 	Selects the element with id="firstname"
+ #id: #firstname - 	Selects the element with id="firstname"  
 
 
-element:      p  - 	Selects all <p> elements
+element:      p  - 	Selects all <p> elements  
 
 
-element,element: d,p - Selects all <d> elements and all <p> elements
+element,element: d,p - Selects all <d> elements and all <p> elements  
 
 
 element element: d p - Selects all <p> elements inside <d> elements
+</textarea>
