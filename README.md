@@ -3,8 +3,9 @@ Extensions to SLAXML (https://github.com/Phrogz/SLAXML) API
 
 
 ## CSS selectors
-slaxdom_ext allows to select DOM nodes based on CSS selectors. Currently, the
-following selectors are implemented:
+slaxdom_ext supports the selection of XML elements based on CSS selectors.
+
+Currently, the following CSS selectors are implemented:
 
   * `.class`: e.g. ".intro" - Selects all elements with class="intro".
   * `#id`: e.g. "#firstname" - Selects the element with id="firstname".
