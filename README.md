@@ -1,17 +1,16 @@
 # slaxdom_ext
 Extensions to SLAXML (https://github.com/Phrogz/SLAXML) API
 
-Selectors:  
 
+## CSS selectors
+slaxdom_ext allows to select DOM nodes based on CSS selectors. Currently, the
+following selectors are implemented:
 
-.class: 	.intro -	Selects all elements with class="intro"  
-
- #id: #firstname - 	Selects the element with id="firstname"  
-
-element:      p  - <textarea>	Selects all <p> elements</textarea>  
-
-element,element: d,p - Selects all <textarea><d> elements and all <p> elements</textarea>  
-
-
-element element: d p - Selects all <textarea><p> elements inside <d> elements</textarea>
+  * `.class`: e.g. ".intro" - Selects all elements with class="intro".
+  * `#id`: e.g. "#firstname" - Selects the element with id="firstname".
+  * `element`: e.g. "p" - Selects all &lt;p&gt; elements.
+  * `element, element`: e.g. "d, p" - Selects all &lt;d&gt; elements and all
+    &lt;p&gt; elements.
+  * `element element`: e.g. "d p" - Selects all &lt;p&gt; elements inside
+    &lt;d&gt; elements.
 
