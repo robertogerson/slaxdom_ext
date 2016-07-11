@@ -128,33 +128,51 @@ end
 --@elements The table with the found elements. 
 function SLAXML:selects(searched,xml_el,elements)
     local index
-    if searched:find(",")~=nil then
+    if searched:find(",")~=nil then --has a ","
       index = searched:find(",")
       print(index)
       SLAXML:selects(string.sub(searched, 1, index-1), xml_el, elements)
       SLAXML:selects(string.sub(searched, index+1),xml_el,elements)
-    elseif searched:find(" ")~=nil then
-			local temp = {}
-			index = searched:find(" ")
-			SLAXML:selects(string.sub(searched, 1, index-1),xml_el,temp)--search parent,temp will be filled
-			for u,v in ipairs(temp) do--for each parent search the son element
-				SLAXML:selects(string.sub(searched, index+1) ,v, elements)
-			end
+    
+    elseif searched:find(" ")~=nil then --"element element" case
+	local temp = {}
+	index = searched:find(" ")
+	SLAXML:selects(string.sub(searched, 1, index-1),xml_el,temp)--search parent,temp will be filled
+	for u,v in ipairs(temp) do--for each parent search the son element
+		SLAXML:selects(string.sub(searched, index+1) ,v, elements)
+	end
+
+    elseif searched:find('%[')~=nil and searched:find('%[')>1 then --"element[attribute]" case
+	local temp = {}
+	index = searched:find('%[')
+	SLAXML:selects(string.sub(searched, 1, index-1),xml_el,temp)
+	for u,v in ipairs(temp) do
+		SLAXML:selects(string.sub(searched, index) ,v, elements)
+	end
+    --elseif proc:find(">")~=nil then
+    
     elseif xml_el.el ~= nil then
       for i,n in ipairs(xml_el.el) do
         SLAXML:selects(searched, xml_el.el[i], elements) 
       end
-      if string.sub(searched, 1, 1) == "#"and xml_el.attr["id"] == string.sub(searched, 2) then
+      
+      if string.sub(searched, 1, 1) == "#"and xml_el.attr["id"] == string.sub(searched, 2) then --#id case
 	table.insert (elements, xml_el)
-      elseif string.sub(searched, 1, 1) == "." and xml_el.attr["class"] == string.sub(searched, 2) then
+      
+      elseif string.sub(searched, 1, 1) == "." and xml_el.attr["class"] == string.sub(searched, 2) then --.class case
         table.insert (elements, xml_el)
       --elseif xml_el.attr["id"] ~= nil and searched == "*" then
+      
+      elseif searched:find('%[')~=nil  and searched:find('%]')==searched:len() then--[attribute] case
+        index = searched:find('%[')
+	if index==1 and xml_el.attr[string.sub(searched,index+1,searched:len()-1)] ~= nil then
+		table.insert (elements, xml_el)
+	end
+      
       else
 		if xml_el["name"]==searched and xml_el["type"]=="element" then
 			table.insert (elements, xml_el)				
-		--elseif proc:find(">")~=nil then
 		--elseif proc:find("+")~=nil then
-		--elseif proc:find(" ")~=nil then
 		end
 	end
     end
