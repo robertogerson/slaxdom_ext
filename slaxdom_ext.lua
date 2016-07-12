@@ -164,11 +164,18 @@ function SLAXML:selects(searched,xml_el,elements)
       --elseif xml_el.attr["id"] ~= nil and searched == "*" then
       
       elseif searched:find('%[')~=nil  and searched:find('%]')==searched:len() then--[attribute] case
+	local specify
         index = searched:find('%[')
-	if index==1 and xml_el.attr[string.sub(searched,index+1,searched:len()-1)] ~= nil then
-		table.insert (elements, xml_el)
+	specify = searched:find("=") --verifies if [attribute=specified] case
+	if specify == nil then
+		if index==1 and xml_el.attr[string.sub(searched,index+1,searched:len()-1)] ~= nil then
+			table.insert (elements, xml_el)
+		end
+	else
+		if index==1 and xml_el.attr[string.sub(searched,index+1,specify-1)] == string.sub(searched,specify+1,searched:len()-1) then
+			table.insert (elements, xml_el)
+		end
 	end
-      
       else
 		if xml_el["name"]==searched and xml_el["type"]=="element" then
 			table.insert (elements, xml_el)				
