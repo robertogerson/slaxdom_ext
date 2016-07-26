@@ -185,10 +185,10 @@ function SLAXML:selects(searched,xml_el,elements)
     end
 end
 
---Join css-like lua table and xml document file
+--Apply css-like lua table into xml DOM
 --@css The css-like Lua Table
 --@doc The xml of input
-function SLAXML:joindocs(css, doc)
+function SLAXML:apply(css, doc)
 	
 	for k, v in pairs (css) do
 		local elements = {}
@@ -202,6 +202,27 @@ function SLAXML:joindocs(css, doc)
 	
 end
 
+--Open XML,process and Save
+--@css the css-like Lua Table
+--@filein name or location of base xml 
+
+function SLAXML:process(css,filein,out) 
+	local name = out or "out.xml"
+	local file = io.open(filein);
+	local xmlfile = file:read("*all")
+	file:close()
+	local doc = SLAXML:dom(xmlfile)
+
+	--chamada da ferramenta passando a tabela e o XML (seu DOM parseado no caso)
+	SLAXML:apply(style, doc)
+
+	--escreve o gerado em arquivo
+	file = io.open(out, "w")
+	file:write(SLAXML:serialize(doc)) --serialize:passa a tabela para texto
+	file:flush()
+	file:close()
+
+end
 
 
 -- Serialize an XML document represented as a SLAXML dom table
