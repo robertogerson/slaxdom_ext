@@ -188,14 +188,25 @@ end
 --Apply css-like lua table into xml DOM
 --@css The css-like Lua Table
 --@doc The xml of input
-function SLAXML:apply(css, doc)
+--@elementsonname If given,a created element of this name receives the attributes 
+function SLAXML:apply(css, doc, elementsonname)
 	
 	for k, v in pairs (css) do
 		local elements = {}
 		SLAXML:selects(k, doc.root, elements)	--look for k in doc
 		for a, b in pairs (elements) do
-			for c,d in pairs(v) do
-				SLAXML:set_attr(b, c, d)
+			if elementsonname==nil then	
+				for c,d in pairs(v) do
+					SLAXML:set_attr(b, c, d)
+				end
+			
+			else
+				for c,d in pairs(v) do
+					local element = {attr = {}, name = elementsonname,type = "element"}
+					SLAXML:set_attr(element, "name", c)	--attribute c and its value d
+					SLAXML:set_attr(element, "value", d)
+					table.insert(b.kids,element)
+				end
 			end
 		end
 	end
@@ -205,8 +216,8 @@ end
 --Open XML,process and Save
 --@css the css-like Lua Table
 --@filein name or location of base xml 
-
-function SLAXML:process(css,filein,out) 
+--@elementsonname If given,a created element of this name receives the attributes 
+function SLAXML:process(css, filein, out, elementsonname) 
 	local name = out or "out.xml"
 	local file = io.open(filein);
 	local xmlfile = file:read("*all")
@@ -214,7 +225,7 @@ function SLAXML:process(css,filein,out)
 	local doc = SLAXML:dom(xmlfile)
 
 	--chamada da ferramenta passando a tabela e o XML (seu DOM parseado no caso)
-	SLAXML:apply(style, doc)
+	SLAXML:apply(style, doc, elementsonname)
 
 	--escreve o gerado em arquivo
 	file = io.open(out, "w")
