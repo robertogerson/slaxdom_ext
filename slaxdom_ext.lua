@@ -27,8 +27,12 @@ function SLAXML:set_attr(xml_el, name, value)
   local updated = false
   -- if there is the attribute in attr table, update it
   for x, attr in pairs(xml_el.attr) do
-    if attr.name == name and attr.value:find(value)==nil then -- CHANGED FROM if attr.name == name then
-      attr.value = attr.value..";"..value -- CHANGE TO attr.value = value
+    if attr.name == name  then 
+        if attr.value:find(value)==nil then -- and  attr.name == "style" ??
+		attr.value = attr.value..";"..value  
+	else
+		attr.value = attr.value
+	end
       updated = true
       break
     end
@@ -207,6 +211,26 @@ SLAXML.applyatribb = function (css, doc, elementsonname)
 					table.insert(b.kids,element)
 				end
 			end
+		end
+	end
+	
+end
+
+--Apply css-like lua table into xml DOM (HTML specific)
+--@css The css-like Lua Table
+--@doc The xml of input
+--@elementsonname If given,a created element of this name receives the attributes 
+SLAXML.applyhtml = function (css, doc)
+	for k, v in pairs (css) do
+		local elements = {}
+		SLAXML:selects(k, doc.root, elements)	--look for k in doc
+		
+		for a, b in pairs (elements) do
+			--if k ~= "border" and k~="padding" and k~=
+			for c,d in pairs(v) do
+				SLAXML:set_attr(b, "style", c..":"..d) -- (ao elemento selecionado, b recebe o style c com atributo d) se alterar a tabela pra deixar style implicito?
+			end
+			--end
 		end
 	end
 	
