@@ -126,7 +126,7 @@ end
 --@searched The string being searched.
 --@xml_el The XML element root where we want to start the search.
 --@elements The table with the found elements. 
-function SLAXML:selects(searched,xml_el,elements)
+function SLAXML:selects(searched, xml_el,elements)
     local index
     if searched:find(",")~=nil then --has a ","
       index = searched:find(",")
@@ -189,8 +189,7 @@ end
 --@css The css-like Lua Table
 --@doc The xml of input
 --@elementsonname If given,a created element of this name receives the attributes 
-function SLAXML:apply(css, doc, elementsonname)
-	
+SLAXML.applyatribb = function (css, doc, elementsonname)
 	for k, v in pairs (css) do
 		local elements = {}
 		SLAXML:selects(k, doc.root, elements)	--look for k in doc
@@ -213,19 +212,52 @@ function SLAXML:apply(css, doc, elementsonname)
 	
 end
 
+--Apply css-like lua table into xml DOM (NCL specific)
+--@css The css-like Lua Table
+--@doc The xml of input
+--@elementsonname If given,a created element of this name receives the attributes 
+SLAXML.applyncl = function (css, doc)
+	for k, v in pairs (css) do
+		local elements = {}
+		SLAXML:selects(k, doc.root, elements)	--look for k in doc
+		for a, b in pairs (elements) do
+			if b.name ~= "media" then	
+				for c,d in pairs(v) do
+					SLAXML:set_attr(b, c, d)
+				end
+			
+			else
+				for c,d in pairs(v) do
+					local element = {attr = {}, name = "property",type = "element"}
+					SLAXML:set_attr(element, "name", c)	--attribute c and its value d
+					SLAXML:set_attr(element, "value", d)
+					table.insert(b.kids,element)
+				end
+			end
+		end
+	end
+	
+end
+
+
 --Open XML,process and Save
 --@css the css-like Lua Table
 --@filein name or location of base xml 
 --@elementsonname If given,a created element of this name receives the attributes 
-function SLAXML:process(css, filein, out, elementsonname) 
+function SLAXML:process(css, filein, out, applyfunction,elementsonname) 
 	local name = out or "out.xml"
 	local file = io.open(filein);
 	local xmlfile = file:read("*all")
 	file:close()
 	local doc = SLAXML:dom(xmlfile)
+	
+	if applyfunction == nil then 
+		print("basic case")
+		applyfunction = SLAXML.applyatribb 
+	end
 
 	--chamada da ferramenta passando a tabela e o XML (seu DOM parseado no caso)
-	SLAXML:apply(style, doc, elementsonname)
+	applyfunction(css, doc, elementsonname)
 
 	--escreve o gerado em arquivo
 	file = io.open(out, "w")
