@@ -1,9 +1,9 @@
-# slaxdom_ext
+# SXMLUA(slaxdom_ext)
 Extensions to SLAXML (https://github.com/Phrogz/SLAXML) API
 
 
 ## CSS selectors
-slaxdom_ext supports the selection of XML elements based on CSS selectors.
+SXMLua(slaxdom_ext) supports the selection of XML elements based on CSS selectors.
 
 Currently, the following CSS selectors are implemented:
 
@@ -16,3 +16,8 @@ Currently, the following CSS selectors are implemented:
     &lt;d&gt; elements.
   * `[attribute]`: e.g. "[target]" - Selects all elements with an attribute target.
   * `[attribute=value]`: e.g. "[target=chosen]" - Selects all elements with target="chosen".
+
+## TODO
+
+  * Add other selectors
+  * Add functions to library like create templates,grids...
