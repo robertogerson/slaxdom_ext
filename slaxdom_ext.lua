@@ -134,7 +134,7 @@ function SLAXML:selects(searched, xml_el,elements)
     local index
     if searched:find(",")~=nil then --has a ","
       index = searched:find(",")
-      print(index)
+      --print(index)
       SLAXML:selects(string.sub(searched, 1, index-1), xml_el, elements)
       SLAXML:selects(string.sub(searched, index+1),xml_el,elements)
     
@@ -194,21 +194,55 @@ end
 --@doc The xml of input
 --@elementsonname If given,a created element of this name receives the attributes 
 SLAXML.applyAtribb = function (css, doc, elementsonname)
+	local ret
+	local removefunc=false
 	for k, v in pairs (css) do
 		local elements = {}
+		
+		for c,d in pairs(v) do
+			if type(css[k][c]) == "table" then
+				for e, f in pairs(d) do
+					css[k][e] = f--put key e and value f in table of the selector v
+				end
+				css[k][c] = nil --deletes table entry to allow serialize
+			end
+		end
+		
 		SLAXML:selects(k, doc.root, elements)	--look for k in doc
 		for a, b in pairs (elements) do
 			if elementsonname==nil then	
 				for c,d in pairs(v) do
-					SLAXML:set_attr(b, c, d)
+					if type(d) == "function" then
+						ret = d()
+						removefunc = true
+						SLAXML:set_attr(b, c, ret)
+					else
+						SLAXML:set_attr(b, c, d)
+					end
 				end
 			
 			else
 				for c,d in pairs(v) do
 					local element = {attr = {}, name = elementsonname,type = "element"}
+					
+					if type(d) == "function" then 
+						ret = d()
+						removefunc = true
+						SLAXML:set_attr(element, "value", ret)
+						
+					else
+						SLAXML:set_attr(element, "value", d)
+					end
+					
 					SLAXML:set_attr(element, "name", c)	--attribute c and its value d
-					SLAXML:set_attr(element, "value", d)
 					table.insert(b.kids,element)
+				end
+			end
+		end
+		if removefunc == true then
+			for c,d in pairs(v) do
+				if type(d) == "function" then
+					css[k][c] = nil
 				end
 			end
 		end
@@ -219,18 +253,42 @@ end
 --Apply css-like lua table into xml DOM (HTML specific)
 --@css The css-like Lua Table
 --@doc The xml of input
---@elementsonname If given,a created element of this name receives the attributes 
 SLAXML.applyAsAttrStyle = function (css, doc)
+	local ret
+	local removefunc=false
 	for k, v in pairs (css) do
 		local elements = {}
+		
+		for c,d in pairs(v) do
+			if type(css[k][c]) == "table" then
+				for e, f in pairs(d) do
+					css[k][e] = f--put key e and value f in table of the selector v
+				end
+				css[k][c] = nil --deletes table entry to allow serialize
+			end
+		end
+		
 		SLAXML:selects(k, doc.root, elements)	--look for k in doc
 		
 		for a, b in pairs (elements) do
 			--if k ~= "border" and k~="padding" and k~=
 			for c,d in pairs(v) do
-				SLAXML:set_attr(b, "style", c..":"..d) -- (ao elemento selecionado, b recebe o style c com atributo d) se alterar a tabela pra deixar style implicito?
+				if type(d) == "function" then 
+					ret = d()
+					removefunc = true
+					SLAXML:set_attr(b, "style", c..":"..ret)
+					else
+					SLAXML:set_attr(b, "style", c..":"..d) -- (ao elemento selecionado, b recebe o style c com atributo d) se alterar a tabela pra deixar style implicito?
+				end
 			end
 			--end
+		end
+		if removefunc == true then
+			for c,d in pairs(v) do
+				if type(d) == "function" then
+					css[k][c] = nil
+				end
+			end
 		end
 	end
 	
@@ -239,7 +297,6 @@ end
 --Apply css-like lua table into xml DOM (NCL specific)
 --@css The css-like Lua Table
 --@doc The xml of input
---@elementsonname If given,a created element of this name receives the attributes 
 SLAXML.applyAsElemProperty = function (css, doc)
 	local ret
 	local removefunc=false
@@ -251,8 +308,6 @@ SLAXML.applyAsElemProperty = function (css, doc)
 					css[k][e] = f--put key e and value f in table of the selector v
 				end
 				css[k][c] = nil --deletes table entry to allow serialize
-			--[[elseif type(d) == "function" then --aqui ou ao inserir no XML?
-				css[k][c] = d()]]
 			end
 		end
 		
