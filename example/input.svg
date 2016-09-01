@@ -1,0 +1,5 @@
+<svg width="400" height="180">
+ <rect x="0" y="20"/>
+ <rect x="50" y="50"/>
+ <circle class="mycircle" cx="50" cy="50" r="40"/>
+</svg> 
