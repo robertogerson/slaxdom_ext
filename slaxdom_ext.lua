@@ -126,6 +126,28 @@ function SLAXML:get_elements_by_type(xml_el, tagname, recursive)
   return elements
 end
 
+--Layout function
+SLAXML.flow = function(proptable) 
+  proptable.n_items = proptable.n_items or 0
+  proptable.margin = proptable.margin or proptable[3] or 0
+  proptable.dist =  proptable.dist or proptable[2] or 25
+  proptable.left = proptable.left or proptable.margin 
+  proptable.top = proptable.top or proptable[4] or 0
+  proptable.height = proptable.height or proptable[5] or 0
+  print(margin,n_items)
+  proptable.n_items = proptable.n_items+1
+  proptable.focusIndex = proptable.n_items
+  proptable.left = (proptable.left + proptable.dist) 
+  if proptable.left >= 100 then
+    proptable.left = 0
+    proptable.top = proptable.top + proptable.height
+  end
+  left = proptable.left.."%" 
+  top = proptable.top.."%"
+  
+  return  left,top,proptable.n_items
+end
+
 -- Selects the DOM elements based on a CSS selector
 -- @searched The string being searched.
 -- @xml_el The XML element root where we want to start the search.
@@ -200,12 +222,17 @@ SLAXML.applyAtribb = function (css, doc, elementsonname)
     local elements = {}
 		
     for c,d in pairs(v) do
-      if type(css[k][c]) == "table" then
-        for e, f in pairs(d) do
-          css[k][e] = f--put key e and value f in table of the selector v
-        end
-
-        css[k][c] = nil --deletes table entry to allow serialize
+      if type(css[k][c]) == "table" and type(css[k][c][1]) ~= "function" then
+	  for e, f in pairs(d) do
+	    css[k][e] = f--put key e and value f in table of the selector v
+	  end
+	--[[else
+	  func = css[k][c][1]
+	  --table.remove(d,1)
+	  ret = func (d)
+	  SLAXML:set_attr(b, c, ret)
+	]]
+	css[k][c] = nil --deletes table entry to allow serialize
       end
     end
 
@@ -302,7 +329,7 @@ SLAXML.applyAsElemProperty = function (css, doc)
   for k, v in pairs (css) do
     local elements = {}
     for c,d in pairs(v) do
-      if type(css[k][c]) == "table" then
+      if type(css[k][c]) == "table" and type(css[k][c][1]) ~= "function" then
         for e, f in pairs(d) do
           css[k][e] = f--put key e and value f in table of the selector v
         end
@@ -318,6 +345,11 @@ SLAXML.applyAsElemProperty = function (css, doc)
             ret = d()
             removefunc = true
             SLAXML:set_attr(b, c, ret)
+	  elseif type(d) == "table" and type(d[1]) == "function" then 
+	   left,top,focusIndex = d[1](d);
+	   SLAXML:set_attr(b, "left", left)
+	   SLAXML:set_attr(b, "top", top)
+	   SLAXML:set_attr(b, "focusIndex", d.focusIndex)
           else
             SLAXML:set_attr(b, c, d)
           end
