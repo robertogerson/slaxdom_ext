@@ -126,11 +126,12 @@ function SLAXML:get_elements_by_type(xml_el, tagname, recursive)
   return elements
 end
 
---Layout function
+--Layout Flow function
 -- nao recebe width do elemento selecionado. Precisa?
 --TODO make add "%" optional
 SLAXML.flow = function(proptable) 
-  proptable.n_items = proptable.n_items or 0
+  local left,top
+  --proptable.n_items = proptable.n_items+1 or 0 --useful for focusIndex
   proptable.margin = proptable.margin or proptable[3] or 0
   proptable.dist =  proptable.dist or proptable[2] or 20
   proptable.top = proptable.top or proptable[4] or nil
@@ -140,10 +141,15 @@ SLAXML.flow = function(proptable)
   else
     proptable.left = proptable.margin 
   end
+  if proptable.n_items ~= nil then 
+    proptable.n_items = proptable.n_items+1
+  else
+    proptable.n_items = 0
+  end
 
   print(proptable.margin,proptable.n_items)
-  proptable.n_items = proptable.n_items+1
-  proptable.focusIndex = proptable.n_items
+  --proptable.n_items = proptable.n_items+1
+  --proptable.focusIndex = proptable.n_items
   --proptable.left = (proptable.left + proptable.dist) 
   if proptable.left >= 100 then
     proptable.left = 0
@@ -162,16 +168,22 @@ SLAXML.flow = function(proptable)
   return  left,proptable.n_items,top
 end
 
---Layout function
+--Layout Box function
 -- nao recebe height do elemento selecionado. Precisa?
 --TODO make add "%" optional
 SLAXML.box = function(proptable) 
-  proptable.n_items = proptable.n_items or 0
+  local left,top
+  --proptable.n_items = proptable.n_items+1 or 0 --useful for focusIndex
   proptable.margin = proptable.margin or proptable[3] or 0
   proptable.dist =  proptable.dist or proptable[2] or 20
-  proptable.top = proptable.left or proptable[4] or nil
+  proptable.left = proptable.left or proptable[4] or nil
   --proptable.height = proptable.height or proptable[5] or 25 
   proptable.width = proptable.width or proptable[5] or 25--many optional parameters
+  if proptable.n_items ~= nil then 
+    proptable.n_items = proptable.n_items+1
+  else
+    proptable.n_items = 0
+  end  
   if proptable.top ~= nil then 
     proptable.top = proptable.top + proptable.dist 
   else
@@ -179,8 +191,8 @@ SLAXML.box = function(proptable)
   end
 
   print(proptable.margin,proptable.n_items)
-  proptable.n_items = proptable.n_items+1
-  proptable.focusIndex = proptable.n_items 
+  --proptable.n_items = proptable.n_items+1
+  --proptable.focusIndex = proptable.n_items 
   if proptable.top >= 100 then
     proptable.top = 0
     if proptable.left == nil then 
@@ -192,12 +204,44 @@ SLAXML.box = function(proptable)
   if proptable.left == nil then
     left = nil
   else
-    left = proptable.top.."%"
+    left = proptable.left.."%"
   end
   
   return  left,proptable.n_items,top
 end
 
+--Layout Grid function
+--TODO  make add "%" optional
+--precisa receber width e height dos elementos?
+SLAXML.grid = function(proptable)
+  local left,top
+  --proptable.n_items = proptable.n_items+1 or 0
+  proptable.m = proptable.m or proptable[2] or 5 --rows
+  proptable.n = proptable.n or proptable[3] or 5 --columns
+  proptable.disth =  proptable.disth or proptable[4] or 100/proptable.m
+  proptable.distv =  proptable.distv or proptable[5] or 100/proptable.n
+  proptable.margin = proptable.margin or proptable[6] or 0
+  proptable.contv = proptable.contv or 0
+
+  if proptable.n_items ~= nil then 
+    proptable.n_items = proptable.n_items+1
+  else
+    proptable.n_items = 0
+  end
+  if proptable.conth ~= nil and proptable.conth < proptable.m-1 then 
+    proptable.conth = proptable.conth+1    
+  else
+    if proptable.conth ~= nil then
+      proptable.contv = proptable.contv+1
+    end
+    proptable.conth = 0 
+  end
+
+  left = proptable.margin+proptable.conth*proptable.disth .. "%"
+  top = proptable.margin+proptable.contv*proptable.distv .. "%"
+
+  return  left,proptable.n_items,top
+end
 
 -- Selects the DOM elements based on a CSS selector
 -- @searched The string being searched.
@@ -402,7 +446,7 @@ SLAXML.applyAsElemProperty = function (css, doc)
               SLAXML:set_attr(b, "left", left)
             end
             if focusIndex~=nil then
-              SLAXML:set_attr(b, "focusIndex", d.focusIndex)
+              SLAXML:set_attr(b, "focusIndex", focusIndex)
             end
             if top~=nil then
               SLAXML:set_attr(b, "top", top)
