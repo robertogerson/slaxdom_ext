@@ -126,6 +126,79 @@ function SLAXML:get_elements_by_type(xml_el, tagname, recursive)
   return elements
 end
 
+--Layout function
+-- nao recebe width do elemento selecionado. Precisa?
+--TODO make add "%" optional
+SLAXML.flow = function(proptable) 
+  proptable.n_items = proptable.n_items or 0
+  proptable.margin = proptable.margin or proptable[3] or 0
+  proptable.dist =  proptable.dist or proptable[2] or 20
+  proptable.top = proptable.top or proptable[4] or nil
+  proptable.height = proptable.height or proptable[5] or 25 --many optional parameters
+  if proptable.left ~= nil then 
+    proptable.left = proptable.left + proptable.dist 
+  else
+    proptable.left = proptable.margin 
+  end
+
+  print(proptable.margin,proptable.n_items)
+  proptable.n_items = proptable.n_items+1
+  proptable.focusIndex = proptable.n_items
+  --proptable.left = (proptable.left + proptable.dist) 
+  if proptable.left >= 100 then
+    proptable.left = 0
+    if proptable.top == nil then 
+      proptable.top = 0
+    end
+    proptable.top = proptable.top + proptable.height
+  end
+  left = proptable.left.."%" 
+  if proptable.top == nil then
+    top = nil
+  else
+    top = proptable.top.."%"
+  end
+  
+  return  left,proptable.n_items,top
+end
+
+--Layout function
+-- nao recebe height do elemento selecionado. Precisa?
+--TODO make add "%" optional
+SLAXML.box = function(proptable) 
+  proptable.n_items = proptable.n_items or 0
+  proptable.margin = proptable.margin or proptable[3] or 0
+  proptable.dist =  proptable.dist or proptable[2] or 20
+  proptable.top = proptable.left or proptable[4] or nil
+  --proptable.height = proptable.height or proptable[5] or 25 
+  proptable.width = proptable.width or proptable[5] or 25--many optional parameters
+  if proptable.top ~= nil then 
+    proptable.top = proptable.top + proptable.dist 
+  else
+    proptable.top = proptable.margin 
+  end
+
+  print(proptable.margin,proptable.n_items)
+  proptable.n_items = proptable.n_items+1
+  proptable.focusIndex = proptable.n_items 
+  if proptable.top >= 100 then
+    proptable.top = 0
+    if proptable.left == nil then 
+      proptable.left = 0
+    end
+    proptable.left = proptable.left + proptable.width
+  end
+  top = proptable.top.."%" 
+  if proptable.left == nil then
+    left = nil
+  else
+    left = proptable.top.."%"
+  end
+  
+  return  left,proptable.n_items,top
+end
+
+
 -- Selects the DOM elements based on a CSS selector
 -- @searched The string being searched.
 -- @xml_el The XML element root where we want to start the search.
@@ -200,12 +273,17 @@ SLAXML.applyAtribb = function (css, doc, elementsonname)
     local elements = {}
 		
     for c,d in pairs(v) do
-      if type(css[k][c]) == "table" then
-        for e, f in pairs(d) do
-          css[k][e] = f--put key e and value f in table of the selector v
-        end
-
-        css[k][c] = nil --deletes table entry to allow serialize
+      if type(css[k][c]) == "table" and type(css[k][c][1]) ~= "function" then
+	  for e, f in pairs(d) do
+	    css[k][e] = f--put key e and value f in table of the selector v
+	  end
+	--[[else
+	  func = css[k][c][1]
+	  --table.remove(d,1)
+	  ret = func (d)
+	  SLAXML:set_attr(b, c, ret)
+	]]
+	css[k][c] = nil --deletes table entry to allow serialize
       end
     end
 
@@ -302,7 +380,7 @@ SLAXML.applyAsElemProperty = function (css, doc)
   for k, v in pairs (css) do
     local elements = {}
     for c,d in pairs(v) do
-      if type(css[k][c]) == "table" then
+      if type(css[k][c]) == "table" and type(css[k][c][1]) ~= "function" then
         for e, f in pairs(d) do
           css[k][e] = f--put key e and value f in table of the selector v
         end
@@ -318,30 +396,65 @@ SLAXML.applyAsElemProperty = function (css, doc)
             ret = d()
             removefunc = true
             SLAXML:set_attr(b, c, ret)
+	        elseif type(d) == "table" and type(d[1]) == "function" then 
+	          left,focusIndex,top = d[1](d);  
+            if left~=nil then
+              SLAXML:set_attr(b, "left", left)
+            end
+            if focusIndex~=nil then
+              SLAXML:set_attr(b, "focusIndex", d.focusIndex)
+            end
+            if top~=nil then
+              SLAXML:set_attr(b, "top", top)
+            end
+            removefunc = true --css[k][c] = nil --deletes table entry to allow serialize
           else
             SLAXML:set_attr(b, c, d)
           end
         end
       else
         for c,d in pairs(v) do
-          local element = {attr = {}, name = "property",type = "element"}
-          if type(d) == "function" then 
-            ret = d()
-            removefunc = true
-            SLAXML:set_attr(element, "value", ret)
+          --
+          if type(d) == "table" and type(d[1]) == "function" then
+            left,focusIndex,top = d[1](d);  
+            if left~=nil then
+              local element = {attr = {}, name = "property",type = "element"}
+              SLAXML:set_attr(element, "name","left")
+              SLAXML:set_attr(element, "value", left)
+              table.insert(b.kids,element)
+            end
+            if focusIndex~=nil then
+              local element = {attr = {}, name = "property",type = "element"}
+              SLAXML:set_attr(element, "name", "focusIndex")
+              SLAXML:set_attr(element, "value", focusIndex)
+              table.insert(b.kids,element)
+            end
+            if top~=nil then
+              local element = {attr = {}, name = "property",type = "element"}
+              SLAXML:set_attr(element, "name","top")
+              SLAXML:set_attr(element, "value", top)
+              table.insert(b.kids,element)
+            end
+            removefunc = true--css[k][c] = nil --deletes table entry to allow serialize
           else
-            SLAXML:set_attr(element, "value", d)
+            local element = {attr = {}, name = "property",type = "element"}
+            if type(d) == "function" then 
+              ret = d()
+              removefunc = true
+              SLAXML:set_attr(element, "value", ret)            
+            else
+              SLAXML:set_attr(element, "value", d)
+            end
+            SLAXML:set_attr(element, "name", c) --attribute c and its value d
+            table.insert(b.kids,element)
           end
-
-          SLAXML:set_attr(element, "name", c) --attribute c and its value d
-          table.insert(b.kids,element)
         end
       end
     end
 
     if removefunc == true then
       for c,d in pairs(v) do
-        if type(d) == "function" then
+        if type(d) == "function" or type(d) == "table" then
           css[k][c] = nil
         end
       end
