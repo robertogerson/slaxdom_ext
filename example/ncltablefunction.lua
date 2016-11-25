@@ -1,4 +1,4 @@
-local SXMLUA = require ("slaxdom_ext")
+local SXMLUA = require ("sxmlua")
 local menutop="91.7%"
 local menuwidth="11.7%"
 local menuheight="6.7%"

@@ -1,4 +1,3 @@
---load SXMLUA
 local SXMLUA = require ("sxmlua")
 
 local n_rect = 0
@@ -8,7 +7,6 @@ local colors = {
   fill = "yellow"
 }
 
---table with style definitions
 local style = {
   ["rect"] = {
     colors,
@@ -22,5 +20,4 @@ local style = {
     colors
   }
 }
---function call
-SXMLUA:process(style,"input.svg", "out.svg")
+SXMLUA:process(style,"input.svg", "outas.svg",SXMLUA.applyAsAttrStyle)

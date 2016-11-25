@@ -1,4 +1,4 @@
-local SXMLUA = require ("slaxdom_ext") --load SXMLua
+local SXMLUA = require ("sxmlua") --load SXMLua
 local h1,bg,rand
 
 --use of random generated numbers
