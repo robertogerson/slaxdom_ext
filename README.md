@@ -33,7 +33,7 @@ Currently, the following CSS selectors are implemented:
 
 ## TODO
 
-  [x] Add functions to automaticcaly define layout templates, such as flow, box, and grid.
-  [ ] Add missing CSS selectors.
-  [ ] Can we apply the styles in NCL in cascade?  How?
-  [ ] Nested rules?
+  - [x] Add functions to automaticcaly define layout templates, such as flow, box, and grid.
+  - [ ] Add missing CSS selectors.
+  - [ ] Can we apply the styles in NCL in cascade?  How?
+  - [ ] Nested rules?
