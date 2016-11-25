@@ -23,4 +23,6 @@ local style = {
   }
 }
 --function call
-SXMLUA:process(style,"input.svg", "out.svg")
+SXMLUA:process( style,
+                "circle_in.svg",
+                "circle_out.svg" )

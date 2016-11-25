@@ -25,9 +25,14 @@ style = {
 	},
 	[".menu"] = {
 	    menu,
-	    _style = {SXMLUA.flow,dist,leftborder,menutop}
+	    _style = {SXMLUA.flow, dist, leftborder, menutop}
 	  }
 }
 
---chamada da ferramenta passando a tabela,o nomes do documento de entrada e o que vai sair
-SXMLUA:process(style, "ncltablefunction.ncl","flowout.ncl",SXMLUA.applyAsElemProperty)
+-- chamada da ferramenta passando a tabela,o nomes do documento
+-- de entrada e o que vai sair
+SXMLUA:process( style,
+                "menu_in.ncl",
+                "menu_flow_layout_out.ncl",
+                SXMLUA.applyAsElemProperty )
+

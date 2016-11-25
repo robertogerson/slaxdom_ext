@@ -31,6 +31,10 @@ style = {
   }
 }
 
---call passing table,name of input and output and additional argument with function to apply the table
-SXMLUA:process(style, "simples.html","saida.html",SXMLUA.applyAsAttrStyle)
- 
+-- call passing table,name of input and output and additional
+-- argument with function to apply the table
+SXMLUA:process( style,
+                "simple.html",
+                "simple_out.html",
+                SXMLUA.applyAsAttrStyle )
+

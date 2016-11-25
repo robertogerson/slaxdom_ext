@@ -1,4 +1,5 @@
 local SXMLUA = require ("sxmlua")
+
 local menutop="91.7%"
 local menuwidth="11.7%"
 local menuheight="6.7%"
@@ -39,5 +40,9 @@ style = {
 	  }
 }
 
---calling the tool passing table,name of input and output and additional argument with function to apply the table
-SXMLUA:process(style, "ncltablefunction.ncl","ncltablefunctionout.ncl",SXMLUA.applyAsElemProperty)
+-- calling the tool passing table,name of input and output and
+-- additional argument with function to apply the table
+SXMLUA:process( style,
+                "menu_in.ncl",
+                "menu_tbl_function.ncl",
+                SXMLUA.applyAsElemProperty )

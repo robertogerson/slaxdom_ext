@@ -1,9 +1,11 @@
 local SXMLUA = require ("sxmlua")
+
 local menuleft="80%"
 local menuwidth="11.7%"
 local menuheight="6.7%"
 local menuzindex="3"
-local dist = 15
+local dist = 22.5
+local topborder = 2.5
 
 menu = {
 	["width"] = menuwidth,
@@ -24,9 +26,13 @@ style = {
 	},
 	[".menu"] = {
 	    menu,
-	    _style = {SXMLUA.grid,2,2,dist,dist}
+	    _style = {SXMLUA.box, dist, topborder, menuleft}
 	  }
 }
 
---chamada da ferramenta passando a tabela,o nomes do documento de entrada e o que vai sair
-SXMLUA:process(style, "ncltablefunction.ncl","gridout.ncl",SXMLUA.applyAsElemProperty)
+-- chamada da ferramenta passando a tabela,o nomes do documento de entrada e o
+-- que vai sair
+SXMLUA:process( style,
+                "menu_in.ncl",
+                "menu_box_layout_out.ncl",
+                SXMLUA.applyAsElemProperty)

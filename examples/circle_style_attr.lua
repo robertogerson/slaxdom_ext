@@ -20,4 +20,8 @@ local style = {
     colors
   }
 }
-SXMLUA:process(style,"input.svg", "outas.svg",SXMLUA.applyAsAttrStyle)
+
+SXMLUA:process( style,
+                "circle_in.svg",
+                "circle_style_attr_out.svg",
+                SXMLUA.applyAsAttrStyle )
