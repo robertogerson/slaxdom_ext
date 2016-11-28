@@ -7,7 +7,7 @@ SXMLUA.flow = function(proptable)
   local left,top
   --proptable.n_items = proptable.n_items+1 or 0 --useful for focusIndex
   proptable.margin = proptable.margin or proptable[3] or 0
-  proptable.dist =  proptable.dist or proptable[2] or 20
+  proptable.dist =  proptable.dist or proptable[2] or 20 --hgap
   proptable.top = proptable.top or proptable[4] or nil
   proptable.height = proptable.height or proptable[5] or 25 --many optional parameters
   if proptable.left ~= nil then 
@@ -92,8 +92,8 @@ SXMLUA.grid = function(proptable)
   --proptable.n_items = proptable.n_items+1 or 0
   proptable.m = proptable.m or proptable[2] or 5 --rows
   proptable.n = proptable.n or proptable[3] or 5 --columns
-  proptable.disth =  proptable.disth or proptable[4] or 100/proptable.m
-  proptable.distv =  proptable.distv or proptable[5] or 100/proptable.n
+  proptable.disth =  proptable.disth or proptable[4] or 100/proptable.m --hgap
+  proptable.distv =  proptable.distv or proptable[5] or 100/proptable.n --vgap
   proptable.margin = proptable.margin or proptable[6] or 0
   proptable.contv = proptable.contv or 0
 
@@ -118,185 +118,38 @@ SXMLUA.grid = function(proptable)
 end
 
 -- Apply a css-like lua table into xml DOM
--- @css The css-like Lua Table
--- @doc The xml of input
--- @elementsonname If given,a created element of this name receives the attributes 
-SXMLUA.applyAtribb = function (css, doc, elementsonname)
-  local ret
-  local removefunc=false
-  for k, v in pairs (css) do
-    local elements = {}
-		
-    for c,d in pairs(v) do
-      if type(css[k][c]) == "table" and c ~= "_style" then
-	      for e, f in pairs(d) do
-	        css[k][e] = f--put key e and value f in table of the selector v
-	      end
-	      --[[else
-	      func = css[k][c][1]
-	      --table.remove(d,1)
-	      ret = func (d)
-	      SXMLUA:set_attr(b, c, ret)
-	      ]]
-	      css[k][c] = nil --deletes table entry to allow serialize
-      end
-    end
-
-    SXMLUA:selects(k, doc.root, elements) -- search for k in doc
-    for a, b in pairs (elements) do
-      if elementsonname==nil then
-        for c,d in pairs(v) do
-          if type(d) == "function" then
-            ret = d()
-            removefunc = true
-            SXMLUA:set_attr(b, c, ret)
-          else
-            SXMLUA:set_attr(b, c, d)
-          end
-        end
-      else
-        for c,d in pairs(v) do
-          local element = {attr = {}, name = elementsonname,type = "element"}
-          if type(d) == "function" then 
-            ret = d()
-            removefunc = true
-            SXMLUA:set_attr(element, "value", ret)
-          else
-            SXMLUA:set_attr(element, "value", d)
-          end
-
-          SXMLUA:set_attr(element, "name", c)	--attribute c and its value d
-          table.insert(b.kids,element)
-        end
-      end
-    end
-
-    if removefunc == true then
-      for c,d in pairs(v) do
-        if type(d) == "function" then
-          css[k][c] = nil
-        end
-      end
-    end
+--@selected: xml element selected
+--@key: attribute name
+--@value: attribute value
+SXMLUA.applyAtribb = function (selected,key,value, elementsonname)
+  if elementsonname==nil then
+   SXMLUA:set_attr(selected, key, value)      
+  else
+   local element = {attr = {}, name = elementsonname,type = "element"}
+   SXMLUA:set_attr(element, "value", value)
+   SXMLUA:set_attr(element, "name", key)	--attribute c and its value d
+   table.insert(b.kids,element)
   end	
 end
 
 --Apply css-like lua table into xml DOM (HTML specific)
---@css The css-like Lua Table
---@doc The xml of input
-SXMLUA.applyAsAttrStyle = function (css, doc)
-  local ret
-  local removefunc=false
-  for k, v in pairs (css) do
-    local elements = {}
-
-    for c,d in pairs(v) do
-      if type(css[k][c]) == "table" then
-        for e, f in pairs(d) do
-	  css[k][e] = f--put key e and value f in table of the selector v
-        end
-
-        css[k][c] = nil --deletes table entry to allow serialize
-      end
-    end
-
-    SXMLUA:selects(k, doc.root, elements) --look for k in doc
-
-    for a, b in pairs (elements) do
-    --if k ~= "border" and k~="padding" and k~=
-      for c,d in pairs(v) do
-        if type(d) == "function" then 
-          ret = d()
-          removefunc = true
-          SXMLUA:set_attr(b, "style", c..":"..ret)
-        else
-          SXMLUA:set_attr(b, "style", c..":"..d) -- (ao elemento selecionado, b recebe o style c com atributo d) se alterar a tabela pra deixar style implicito?
-        end
-      end
-      --end
-     end
-
-    if removefunc == true then
-      for c,d in pairs(v) do
-        if type(d) == "function" then
-          css[k][c] = nil
-        end
-      end
-    end
-  end
+--
+SXMLUA.applyAsAttrStyle = function (selected,key,value)
+  SXMLUA:set_attr(selected, "style", key..":"..value)
+  
 end
 
 --Apply css-like lua table into xml DOM (NCL specific)
---@css The css-like Lua Table
---@doc The xml of input
-SXMLUA.applyAsElemProperty = function (css, doc)
-  local resultstyle = {}
-  local removefunc=false
-  for k, v in pairs (css) do
-    local elements = {}
-    for c,d in pairs(v) do
-      if type(css[k][c]) == "table" and c ~= "_style" then
-        for e, f in pairs(d) do
-          css[k][e] = f--put key e and value f in table of the selector v
-        end
-        css[k][c] = nil --deletes table entry to allow serialize
-      end
-    end
-
-    SXMLUA:selects(k, doc.root, elements)  --look for k in doc
-    for a, b in pairs (elements) do
-      if b.name ~= "media" then
-        for c,d in pairs(v) do
-          if type(d) == "function" then
-            ret = d()
-            removefunc = true
-            SXMLUA:set_attr(b, c, ret)
-	        elseif type(d) == "table" and c == "_style" then 
-	          resultstyle = d[1](d);  
-            for e,f in pairs (resultstyle) do
-              SXMLUA:set_attr(b, e, f) 
-            end
-            removefunc = true --css[k][c] = nil --deletes table entry to allow serialize
-          else
-            SXMLUA:set_attr(b, c, d)
-          end
-        end
-      else
-        for c,d in pairs(v) do
-          --
-          if type(d) == "table" and c == "_style" then
-            resultstyle = d[1](d);  
-            for e,f in pairs (resultstyle) do
-              local element = {attr = {}, name = "property",type = "element"}
-              SXMLUA:set_attr(element, "name",e)
-              SXMLUA:set_attr(element, "value",f)
-              table.insert(b.kids,element)
-            end
-            removefunc = true--css[k][c] = nil --deletes table entry to allow serialize
-          else
-            local element = {attr = {}, name = "property",type = "element"}
-            if type(d) == "function" then 
-              ret = d()
-              removefunc = true
-              SXMLUA:set_attr(element, "value", ret)            
-            else
-              SXMLUA:set_attr(element, "value", d)
-            end
-            SXMLUA:set_attr(element, "name", c) --attribute c and its value d
-            table.insert(b.kids,element)
-          end
-        end
-      end
-    end
-
-    if removefunc == true then
-      for c,d in pairs(v) do
-        if type(d) == "function" or type(d) == "table" then
-          css[k][c] = nil
-        end
-      end
-    end
+--
+SXMLUA.applyAsElemProperty = function (selected,key,value)
+  if selected.name ~= "media" then
+    SXMLUA:set_attr(selected, key, value)
+  else             
+    local element = {attr = {}, name = "property",type = "element"}
+    SXMLUA:set_attr(element, "name",key)
+    SXMLUA:set_attr(element, "value",value)
+    table.insert(selected.kids,element)
   end
-end
+end          
 
 return SXMLUA

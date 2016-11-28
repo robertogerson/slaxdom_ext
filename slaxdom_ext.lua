@@ -205,9 +205,53 @@ function SLAXML:process(css, filein, out, applyfunction,elementsonname)
     print("basic case")
     applyfunction = SLAXML.applyAtribb 
   end
+    
+  --lendo e aplicando
+  local ret
+  local removefunc=false
+  local resultstyle = {}
+
+    for k, v in pairs (css) do
+      local elements = {}
+      for c,d in pairs(v) do
+        if type(css[k][c]) == "table" and c ~= "_style" then
+          for e, f in pairs(d) do
+            css[k][e] = f--put key e and value f in table of the selector v
+          end
+          css[k][c] = nil --deletes table entry to allow serialize
+        end
+      end
+      
+      SLAXML:selects(k, doc.root, elements)  --look for k in doc
+      for a, b in pairs (elements) do
+        for c,d in pairs(v) do
+          if type(d) == "function" then
+              ret = d()
+              removefunc = true
+              applyfunction(b,c,ret)
+          elseif type(d) == "table" and c == "_style" then 
+	            resultstyle = d[1](d);  
+              for e,f in pairs (resultstyle) do
+                applyfunction(b,e,f)
+              end
+              removefunc = true
+          else
+            applyfunction(b,c,d)
+          end  
+        end
+      end
+
+      if removefunc == true then
+        for c,d in pairs(v) do
+          if type(d) == "function" or type(d) == "table" then
+            css[k][c] = nil
+          end
+        end
+      end
+    end
 
   --chamada da ferramenta passando a tabela e o XML (seu DOM parseado no caso)
-  applyfunction(css, doc, elementsonname)
+  --applyfunction(css, doc, elementsonname)
 
   --escreve o gerado em arquivo
   file = io.open(out, "w")
