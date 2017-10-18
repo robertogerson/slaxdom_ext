@@ -268,7 +268,7 @@ function SLAXML:serialize (xml_el, ntabs, TAB)
   ntabs = ntabs or 0 -- the default value for ntabs is zero
   TAB   = TAB or '\t' -- default TAB character
 
-  local str_el = ""    
+  local str_el = ""
   if xml_el.type == "pi" then
     str_el = "<?" .. xml_el.name .. " " .. xml_el.value .."?>\n"
     return str_el
@@ -286,9 +286,12 @@ function SLAXML:serialize (xml_el, ntabs, TAB)
         end
       end
     else
-       if xml_el.type == "text" then --this if was commented
-        return xml_el.value --
-       end	--
+       if xml_el.type == "text" then
+         local str = xml_el.value:gsub("%s+", "") -- trim value
+         if str and str ~= '' then
+           return xml_el.value
+         end
+       end
     end
     
     -- go recursively 
