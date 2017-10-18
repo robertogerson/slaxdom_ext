@@ -9,11 +9,11 @@ Extensions to SLAXML (https://github.com/Phrogz/SLAXML) API
     an SLAXML element.
   * `SLAXML:find_by_attribute (xml_el, attr, value)`: Returns all the elements
     with attribute `attr` equals to `value`.
-  * `SLAXML:get_elem_by_attr(root, attr, value)`: Returns the first element
+  * `SLAXML:get_elem_by_attr (root, attr, value)`: Returns the first element
     with attribute `attr` equals to `value`.
-  * `SLAXML:get_elements_by_type(xml_el, tagname, recursive)`: Search for all
+  * `SLAXML:get_elements_by_type (xml_el, tagname, recursive)`: Search for all
     elements with tagname equals to `tagname`.
-  * `SLAXML:selects(css_selector, xml_el, elements)`: Selects the SLAXML
+  * `SLAXML:selects (css_selector, xml_el, elements)`: Selects the SLAXML
     elements based on a CSS selector.
 
 ## About the CSS selectors
