@@ -2,11 +2,11 @@
 --local SLAXML = require 'slaxml.slaxdom' --old
 local SLAXML = require ("slaxdom")
 
--- Get the attribute of an XML element represented by SLAXML.
+-- Gets the attribute of an XML element represented by SLAXML.
 -- @param xml_el
 -- @param name
 -- @param value
-function SLAXML:get_attr(xml_el, name)
+function SLAXML:get_attr (xml_el, name)
   assert(xml_el.attr)
   -- if there is the attribute in attr table, update it
   for x, attr in pairs(xml_el.attr) do
@@ -18,11 +18,11 @@ function SLAXML:get_attr(xml_el, name)
   return nil
 end
 
--- Set an value to an attribute.
+-- Sets the attribute value.
 -- @param xml_el
 -- @param name
 -- @param value
-function SLAXML:set_attr(xml_el, name, value)
+function SLAXML:set_attr (xml_el, name, value)
   assert(xml_el.attr)
   local updated = false
   -- if there is the attribute in attr table, update it
@@ -46,11 +46,11 @@ function SLAXML:set_attr(xml_el, name, value)
   end
 end
 
--- Find all the elements with attribute attr = value
+-- Finds all the elements with attribute attr = value.
 -- @xml_el
 -- @attr
 -- @value
-function SLAXML:find_by_attribute(xml_el, attr, value)
+function SLAXML:find_by_attr (xml_el, attr, value)
   local found_elements = {};
   if xml_el.attr then
     for k,v in pairs (xml_el.attr) do
@@ -62,7 +62,7 @@ function SLAXML:find_by_attribute(xml_el, attr, value)
     end
   end
   
-  -- go into children recursively
+  -- Recursively visits the children.
   if xml_el.kids then
     for k,v in pairs (xml_el.kids) do
       local found_from_child_el = SLAXML:find_by_attribute (v, attr, value)
@@ -77,11 +77,11 @@ function SLAXML:find_by_attribute(xml_el, attr, value)
   return found_elements;
 end
 
--- Get XML element by attribute.
+-- Gets XML element by attribute.
 -- @param xml_el
 -- @param name
 -- @param value
-function SLAXML:get_elem_by_attr(root, attr, value)
+function SLAXML:get_elem_by_attr (root, attr, value)
   if root.attr then
      local attr_value = SLAXML:get_attr(root, attr)
     if attr_value == value then
@@ -101,12 +101,12 @@ function SLAXML:get_elem_by_attr(root, attr, value)
 end
 
 
--- Search all the elements with a tagname
+-- Searches all the elements with a tagname.
 -- @xml_el The XML element root where we want to start the search.
 -- @tagname The tagname to be found.
 -- @recursive It should be true if you want to search recursively in the
 --            xml_el'schildren.
-function SLAXML:get_elements_by_type(xml_el, tagname, recursive)
+function SLAXML:get_elems_by_type (xml_el, tagname, recursive)
   local elements = {}
   if (xml_el.name == tagname) then
     table.insert (elements, xml_el)
@@ -114,7 +114,7 @@ function SLAXML:get_elements_by_type(xml_el, tagname, recursive)
   
   if recursive and xml_el.kids then
     for k, v in pairs(xml_el.kids) do
-      local x = SLAXML:get_elements_by_type (v, tagname, recursive)
+      local x = SLAXML:get_elems_by_type (v, tagname, recursive)
       if (#x ~= 0) then
         for k1, v1 in pairs (x) do
           table.insert(elements, v1)
@@ -126,11 +126,11 @@ function SLAXML:get_elements_by_type(xml_el, tagname, recursive)
   return elements
 end
 
--- Selects the DOM elements based on a CSS selector
+-- Selects the DOM elements based on a CSS selector.
 -- @searched The string being searched.
 -- @xml_el The XML element root where we want to start the search.
 -- @elements The table with the found elements. 
-function SLAXML:selects(searched, xml_el,elements)
+function SLAXML:selects (searched, xml_el,elements)
   local index
   if searched:find(",")~=nil then --has a ","
     index = searched:find(",")
@@ -189,11 +189,11 @@ function SLAXML:selects(searched, xml_el,elements)
   end
 end
 
---Open XML,process and Save
---@css the css-like Lua Table
---@filein name or location of base xml 
---@elementsonname If given,a created element of this name receives the attributes 
-function SLAXML:process(css, filein, out, applyfunction,elementsonname) 
+-- Opens the XML, processes it and save it.
+-- @css the css-like Lua Table
+-- @filein name or location of base xml 
+-- @elementsonname If given,a created element of this name receives the attributes 
+function SLAXML:process (css, filein, out, applyfunction,elementsonname) 
   local name = out or "out.xml"
   local file = io.open(filein);
   local xmlfile = file:read("*all")
