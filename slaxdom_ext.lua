@@ -28,7 +28,7 @@ function SLAXML:set_attr (xml_el, name, value)
   -- if there is the attribute in attr table, update it
   for x, attr in pairs(xml_el.attr) do
     if attr.name == name  then
-      attr.value = attr.value
+      attr.value = value
       updated = true
       break
     end
