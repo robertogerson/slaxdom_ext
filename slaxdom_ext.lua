@@ -27,12 +27,8 @@ function SLAXML:set_attr (xml_el, name, value)
   local updated = false
   -- if there is the attribute in attr table, update it
   for x, attr in pairs(xml_el.attr) do
-    if attr.name == name  then 
-        if attr.value:find(value)==nil then -- and  attr.name == "style" ??
-		attr.value = attr.value..";"..value  
-	else
-		attr.value = attr.value
-	end
+    if attr.name == name  then
+      attr.value = attr.value
       updated = true
       break
     end
@@ -99,7 +95,6 @@ function SLAXML:get_elem_by_attr (root, attr, value)
   end
   return nil
 end
-
 
 -- Searches all the elements with a tagname.
 -- @xml_el The XML element root where we want to start the search.
